@@ -129,14 +129,20 @@ static const struct pw_registry_events registry_events = {
 };
 
 
-/*
-static void do_quit(void *userdata, int signal_number)
+
+static void quit()
+{
+	pw_main_loop_quit(data.loop);
+}
+
+
+static void do_quit(void *data, int signal_number)
 {
 	fprintf(stdout, "do_quit()\n");
-	struct data *data = userdata;
-	pw_main_loop_quit(data->loop);
+	struct data *d = data;
+	pw_main_loop_quit(d->loop);
 }
-*/
+
 
 enum STATUS_CODE init(char* client_name[], core_callback_t c_cb, object_change_callback_t oc_cb)
 {
@@ -148,8 +154,7 @@ enum STATUS_CODE init(char* client_name[], core_callback_t c_cb, object_change_c
 	int argc = 1;
 
 	pw_init(&argc, &client_name);
-//
-//	spa_list_init(&data.objects);
+
 	data.properties = pw_properties_new(NULL, NULL);
 
 	if (data.properties == NULL)
@@ -160,9 +165,8 @@ enum STATUS_CODE init(char* client_name[], core_callback_t c_cb, object_change_c
 	if (data.loop == NULL)
 		return ERR_CREATE_LOOP;
 
-//
-//	pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGINT, do_quit, &data);
-//	pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGTERM, do_quit, &data);
+	pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGINT, do_quit, &data);
+	pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGTERM, do_quit, &data);
 
 	data.context = pw_context_new(pw_main_loop_get_loop(data.loop), NULL, 0);
 
